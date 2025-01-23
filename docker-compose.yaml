@@ -1,0 +1,43 @@
+services:   
+    db:
+      image: mysql:latest
+      container_name: knacx-mysql
+      environment:
+        MYSQL_ROOT_PASSWORD: password
+        MYSQL_DATABASE: knacx
+      volumes:
+        - "knacx-MYSQL:/var/lib/mysql"  
+      ports:
+        - "3307:3306"
+      networks:
+        - knacx  
+    phpmyadmin:
+      image: phpmyadmin:latest
+      container_name: knacx-phpmyadmin
+      environment:
+        PMA_HOST: db
+        PMA_PORT: 3306
+        PMA_USER: root
+        PMA_PASSWORD: password
+      ports:
+        - '8080:80'  
+      depends_on: 
+        - db  
+      networks:
+        - knacx    
+    redis:
+      image: redis:latest
+      container_name: knacx-redis
+      ports:
+        - '6379:6379'
+      networks:
+        - knacx  
+networks:
+  knacx:
+    driver: bridge
+volumes:
+  knacx-MYSQL:
+    driver: local
+  knacx-MONGO:
+    driver: local
+    
