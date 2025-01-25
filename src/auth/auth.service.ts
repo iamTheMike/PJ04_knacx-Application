@@ -24,7 +24,7 @@ export interface UserResult {
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User)
+    @InjectRepository(User,"knacx")
     private authRepository: Repository<User>, //generic
     private JwtService: JwtService,
     private Configservice: ConfigService,

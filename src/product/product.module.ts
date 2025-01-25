@@ -5,9 +5,10 @@ import { Product } from './entities/product.entities';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/auth/entities/auth.entities';
 
+
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product,User]),
+     TypeOrmModule.forFeature([User,Product],"knacx"),
   ],
   providers: [ProductService],
   controllers: [ProductController]

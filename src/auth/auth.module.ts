@@ -12,7 +12,7 @@ import { Product } from 'src/product/entities/product.entities';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User,Product]),
+    TypeOrmModule.forFeature([User,Product],"knacx"),
     JwtModule,
     PassportModule
   ],

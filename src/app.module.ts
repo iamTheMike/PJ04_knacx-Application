@@ -1,16 +1,16 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { User } from './auth/entities/auth.entities';
 import { PassportModule } from '@nestjs/passport';
-import { DatabaseModule } from './_database/database.module';
 import { OrderModule } from './order/order.module';
 import { ProductModule } from './product/product.module';
 import { Product } from './product/entities/product.entities';
 import { CacheModule } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-redis-yet';
+
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { redisStore } from 'cache-manager-ioredis-yet';
+import { LoggingMiddleWare } from './middleware/logging.middleware';
 
 @Module({
 
@@ -19,39 +19,30 @@ import { redisStore } from 'cache-manager-redis-yet';
       isGlobal: true,
       envFilePath: '.env',
     }),//read env file
-    DatabaseModule.forRoot([
+    TypeOrmModule.forRoot(
       {
         type: process.env.DB_TYPE as 'mysql',
         host: process.env.DB_HOST,
         port: parseInt(process.env.DB_PORT as string),
         username: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
-        database: "Products",
-        entities: [Product],
+        name: "knacx",
+        database: "knacx",
+        entities: [Product,User],
         synchronize: true
 
       },
-      {
-        type: process.env.DB_TYPE as 'mysql',
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT as string),
-        username: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: "Users",
-        entities: [User],
-        synchronize: true,
-      },
-    ]),//connect to database
+   ),
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: async () => {
         const store = await redisStore({
           socket: {
             host:'localhost',
-            port:6379
+            port:6370,
           }
         })
-        return {store }
+        return {store ,ttl:30000}
       }
     }),
     AuthModule,
@@ -59,11 +50,14 @@ import { redisStore } from 'cache-manager-redis-yet';
     OrderModule,
     ProductModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [Logger],
 })
-export class AppModule {
-  constructor() {
-
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+    .apply(LoggingMiddleWare).forRoutes('*')
   }
+
+  
 }

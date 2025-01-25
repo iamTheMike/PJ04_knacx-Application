@@ -24,7 +24,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @UseGuards(LocalAuthGuard) //return req.user from LocalStrategy
+  @UseGuards(LocalAuthGuard) 
   async login(@CurrentAuth() user: UserResult, @Res({ passthrough: true }) response: Response) {
     return this.authService.login(user, response);
   }

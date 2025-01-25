@@ -4,10 +4,10 @@ services:
       container_name: knacx-mysql
       environment:
         MYSQL_ROOT_PASSWORD: password
-        MYSQL_DATABASE: Users
+        MYSQL_DATABASE: knacx
       volumes:
         - "knacx-MYSQL:/var/lib/mysql"  
-        - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+        # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       ports:
         - "3307:3306"
       networks:
@@ -30,7 +30,7 @@ services:
       image: redis:latest
       container_name: knacx-redis
       ports:
-        - '6379:6379'
+        - '6370:6379'
       networks:
         - knacx  
 networks:
