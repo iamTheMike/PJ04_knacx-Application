@@ -1,7 +1,7 @@
 import { IsString, MinLength } from 'class-validator';
 
 // Define the data that will be sent to the controller
-export class RegisterDto {
+export class RegisterUserDto {
   @IsString({ message: 'email must be a string' })
   readonly email: string;
 

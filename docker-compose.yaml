@@ -4,9 +4,10 @@ services:
       container_name: knacx-mysql
       environment:
         MYSQL_ROOT_PASSWORD: password
-        MYSQL_DATABASE: knacx
+        MYSQL_DATABASE: Users
       volumes:
         - "knacx-MYSQL:/var/lib/mysql"  
+        - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       ports:
         - "3307:3306"
       networks:

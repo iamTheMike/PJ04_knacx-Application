@@ -8,10 +8,11 @@ import { LocalStrategy } from './strategies/local.strategies';
 import { JwtStrategy } from './strategies/่jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import { Product } from 'src/product/entities/product.entities';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User,Product]),
     JwtModule,
     PassportModule
   ],

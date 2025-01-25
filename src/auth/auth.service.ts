@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/auth.entities';
 import { Repository } from 'typeorm';
-import { RegisterDto } from './dto/register.dto';
+import { RegisterUserDto } from './dto/auth-register.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
@@ -25,25 +27,35 @@ export class AuthService {
     @InjectRepository(User)
     private authRepository: Repository<User>, //generic
     private JwtService: JwtService,
-    private Configservice: ConfigService
-    ,
+    private Configservice: ConfigService,
   ) { }
 
 
-  async register(registerDto: RegisterDto): Promise<UserResult> {
-    const register = this.authRepository.create(registerDto);
+  async register(userDto: RegisterUserDto): Promise<UserResult> {
+    const register = this.authRepository.create(userDto);
     const user = await this.authRepository.save(register);
     const { id, name, email } = user;
-    return { id, name, email };
+    return { 
+      id, name, email,
+     };
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const user = await this.authRepository.findOne({ where: { email } })
-    if (user) {
-      return user;
-    } else {
-      throw new Error('User not found');
+    try{
+      const user = await this.authRepository.findOne({ where: { email } })
+      if(!user){
+        throw new HttpException("User not found", HttpStatus.NOT_FOUND);
+      }else{
+        return user
+      }
+    }catch(error){
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+      
+    
+    
+      
+    
   }
 
   async validateUser(email: string, password: string): Promise<UserResult | null> {
