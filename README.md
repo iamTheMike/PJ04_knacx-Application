@@ -18,7 +18,7 @@
 
 ## Installation
 ```
-git clone https://github.com/iamTheMike/PJ01_MERN_server.git
+git clone https://github.com/iamTheMike/PJ04_knacx-Application.git
 cd project
 docker-compose up -d --build 
 npm install
