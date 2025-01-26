@@ -34,7 +34,7 @@ code .
 npm run start:dev
 ```
 
-## Test API
+## API Document
 ```
 http://localhost:3000/api
 ```
