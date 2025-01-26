@@ -6,8 +6,11 @@ import { Order } from './entities/order.entities';
 import { OrderItem } from './entities/order.item.entities';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([Order,OrderItem],"knacx_orders")],
+  imports: [
+    TypeOrmModule.forFeature([Order, OrderItem], "knacx_orders")
+   
+  ],
   controllers: [OrderController],
   providers: [OrderService]
 })
-export class OrderModule {}
+export class OrderModule { }

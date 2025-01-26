@@ -9,7 +9,7 @@ import { Response } from 'express';
 
 
 
-@Controller('product')
+@Controller('products')
 export class ProductController {
     constructor(private readonly productService: ProductService) { }
 

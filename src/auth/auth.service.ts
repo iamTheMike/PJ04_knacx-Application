@@ -24,7 +24,7 @@ export interface UserResult {
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User,"knacx")
+    @InjectRepository(User, "knacx")
     private authRepository: Repository<User>, //generic
     private JwtService: JwtService,
     private Configservice: ConfigService,
@@ -33,24 +33,32 @@ export class AuthService {
 
   async register(userDto: RegisterUserDto): Promise<UserResult> {
     const register = this.authRepository.create(userDto);
-    const user = await this.authRepository.save(register);
+    let user:User;
+    try {
+      user = await this.authRepository.save(register);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new HttpException("User's email already exists", HttpStatus.CONFLICT);
+      }
+      throw new HttpException("An error occurred while register ", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     const { id, name, email } = user;
-    return { 
+    return {
       id, name, email,
-     };
+    };
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    try{
+    try {
       const user = await this.authRepository.findOne({ where: { email } })
-      if(!user){
+      if (!user) {
         throw new HttpException("User not found", HttpStatus.NOT_FOUND);
-      }else{
+      } else {
         return user
       }
-    }catch(error){
+    } catch (error) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    } 
+    }
   }
 
   async validateUser(email: string, password: string): Promise<UserResult | null> {
@@ -59,7 +67,7 @@ export class AuthService {
       const { id, name, email } = user;
       return { id, name, email };
     } else {
-      throw new HttpException('Invalid Password or email',HttpStatus.UNAUTHORIZED)
+      throw new HttpException('Invalid Password or email', HttpStatus.UNAUTHORIZED)
     }
   }
 
@@ -97,40 +105,40 @@ export class AuthService {
       secure: process.env.NODE_ENV === 'production',
       expires: expiresRefreshToken
     })
-    throw new HttpException('Login Success',HttpStatus.OK)
+    throw new HttpException('Login Success', HttpStatus.OK)
 
   }
 
   async updateRefrshToken(user: UserResult, refreshToken: string): Promise<void> {
     const userUpdate = await this.findByEmail(user.email) as User;
-    userUpdate.refreshToken = await bcrypt.hash(refreshToken,10) ;
+    userUpdate.refreshToken = await bcrypt.hash(refreshToken, 10);
     await this.authRepository.save(userUpdate);
   }
 
-  async verrifyRefreshToken(refreshToken: string, useremail: string):Promise<UserResult | null> {
+  async verrifyRefreshToken(refreshToken: string, useremail: string): Promise<UserResult | null> {
     try {
       const user = await this.findByEmail(useremail);
       const authenticate = await bcrypt.compare(refreshToken, user?.refreshToken as string);
-      if(!authenticate){
-        throw new HttpException('Refresh Token Expired',HttpStatus.UNAUTHORIZED)
+      if (!authenticate) {
+        throw new HttpException('Refresh Token Expired', HttpStatus.UNAUTHORIZED)
       }
       const { id, name, email } = user as User;
       return { id, name, email };
     } catch (error) {
-      throw new HttpException('Refresh Token Expired',HttpStatus.UNAUTHORIZED)
+      throw new HttpException('Refresh Token Expired', HttpStatus.UNAUTHORIZED)
     }
   }
 
   logout(reponse: Response) {
     reponse.clearCookie('Authentication', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', 
+      secure: process.env.NODE_ENV === 'production',
     });
     reponse.clearCookie('Refresh', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
     });
     // ส่งการตอบกลับ
-    throw new HttpException('Logout Success',HttpStatus.OK)
+    throw new HttpException('Logout Success', HttpStatus.OK)
   }
 }
