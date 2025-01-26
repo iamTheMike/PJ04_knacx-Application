@@ -33,7 +33,14 @@ code .
 npm run start:dev
 ```
 
-
+## Test API
+```
+http://localhost:3000/api
+```
+## Database service by PHP
+```
+http://localhost:8080/
+```
 
 
 
