@@ -13,6 +13,9 @@ import { LoggingMiddleWare } from './_middleware/logging.middleware';
 import { Order } from './order/entities/order.entities';
 import { OrderItem } from './order/entities/order.item.entities';
 import { BullModule } from '@nestjs/bull';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { EmailModule } from './email/email.module';
+
 
 
 @Module({
@@ -67,10 +70,21 @@ import { BullModule } from '@nestjs/bull';
         port: 6370
       }
     }),
+    MailerModule.forRoot({
+      transport:{
+        host:'smtp.gmail.com',
+        auth: {
+          user:process.env.EMAIL,
+          pass:process.env.PASSWORD_EMAIL,
+        }
+      }
+    }),
     AuthModule,
     PassportModule,
     OrderModule,
     ProductModule,
+    MailerModule,
+    EmailModule,
   ],
   controllers: [],
   providers: [Logger],

@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/bull": "^11.0.1",
     "@nestjs/cache-manager": "^3.0.0",
     "@nestjs/common": "^11.0.1",
@@ -62,6 +63,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.7",
+    "@types/nodemailer": "^6.4.17",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",
     "@types/supertest": "^6.0.2",
