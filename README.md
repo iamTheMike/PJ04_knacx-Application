@@ -26,7 +26,7 @@ code .
 ```
 
 # **Note**
- Bedore start raname .env.example to be .env use default setting and You have to set the email and password using your Gmail email service others use default setting
+ Before start you have to raname .env.example to be .env use default setting and  set the email and password using your Gmail email service others use default setting in this .env file
 
 ## Start development
 ```
