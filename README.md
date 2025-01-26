@@ -19,10 +19,14 @@
 ## Installation
 ```
 git clone https://github.com/iamTheMike/PJ04_knacx-Application.git
-cd project
+cd PJ04_knacx-Application
 docker-compose up -d --build 
 npm install
+code .
 ```
+
+# **Note**
+ Before start you have to rename (.env.example) to be (.env) use default setting and set the email and password using your Gmail email service others use default setting in this .env file
 
 ## Start development
 ```
