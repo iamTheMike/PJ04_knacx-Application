@@ -1,8 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import { Body, Controller, Delete, Get, Param, Patch, Post, Res } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/product-create.dto';
 import { UpdateProductDto } from './dto/product-update.dto';
-
+import { Response } from 'express';
 
 
 
@@ -31,5 +34,12 @@ export class ProductController {
         return await this.productService.deleteProduct(id);
     }
 
+    @Get('export')
+    async exportProducts(@Res() res: Response) {
+        return await this.productService.exportProductsToCSV(res);
+        
 
+    }
 }
+
+

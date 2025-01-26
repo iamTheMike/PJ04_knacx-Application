@@ -38,7 +38,6 @@ export class AuthController {
   @Post('refresh')
   @UseGuards(JwtRefreshAuthGuard)
   async refreshToken(@CurrentAuth() user: UserResult, @Res({ passthrough: true }) response: Response) {
-  
     return this.authService.login(user, response);
   }
 

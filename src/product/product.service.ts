@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entities';
@@ -5,8 +9,10 @@ import { Repository } from 'typeorm';
 import { Cache } from 'cache-manager';
 import { CreateProductDto } from './dto/product-create.dto';
 import { UpdateProductDto } from './dto/product-update.dto';
-import { User } from 'src/auth/entities/auth.entities';
-
+import * as fs from 'fs';
+import * as path from 'path';
+import {Parser} from 'json2csv'
+import { Response } from 'express';
 @Injectable()
 export class ProductService {
     constructor(
@@ -17,9 +23,8 @@ export class ProductService {
         private cacheManager: Cache
     ) { }
 
-    async findAll() {
-        await this.cacheManager.del('products');
-        const cacheData = await this.cacheManager.get('products');
+    async findAll(): Promise<Product[]> {
+        const cacheData: Product[] | null = await this.cacheManager.get('products');
         if (cacheData) {
             console.log('Get CacheData');
             return cacheData;
@@ -31,16 +36,26 @@ export class ProductService {
     }
 
     async createProduct(productDto: CreateProductDto) {
-        const create = this.productRepository.create(productDto);
-        const product = [await this.productRepository.save(create)];
-        await this.cacheManager.del('products');
+        let product;
+        try {
+            const create = this.productRepository.create(productDto);
+            product = [await this.productRepository.save(create)];
+        } catch (error) {
+            if (error.code === 'ER_DUP_ENTRY') {
+                throw new HttpException("Product name already exists", HttpStatus.CONFLICT);
+            }
+            console.log(error)
+            throw new HttpException("An error occurred while creating the product", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         const cacheData: CreateProductDto[] | null = await this.cacheManager.get('products')
         let createProduct: CreateProductDto[] = [];
         if (cacheData) {
+            console.log('Get CacheData');
             createProduct = cacheData;
             createProduct.push(product[0])
             await this.cacheManager.set('products', createProduct);
         } else {
+            console.log('Get MySQLData');
             const productData = await this.productRepository.find();
             createProduct = productData;
             await this.cacheManager.set('products', createProduct);
@@ -49,20 +64,37 @@ export class ProductService {
     }
 
     async updateProducts(id: number, productDto: UpdateProductDto) {
-        const update = await this.productRepository.update(id, productDto)
+        let update;
+        try {
+            update = await this.productRepository.update(id, productDto)
+        } catch (error) {
+            if (error.code === 'ER_DUP_ENTRY') {
+                throw new HttpException("Product name already exists", HttpStatus.CONFLICT);
+            }
+            console.log(error)
+            throw new HttpException("An error occurred while creating the product", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         if (update.affected === 0) {
-            console.log("Product not found");
             throw new HttpException("Product not found", HttpStatus.NOT_FOUND);
         }
-        await this.cacheManager.del('products');
-        const product = [await this.productRepository.findOne({ where: { id } })] as CreateProductDto[];
-        const cacheData: CreateProductDto[] | null = await this.cacheManager.get('products')
-        let createProduct: CreateProductDto[] = [];
+
+        const newProduct = { ...await this.productRepository.findOne({ where: { id } }) };
+        const cacheData: Product[] | null = await this.cacheManager.get('products')
+        let createProduct: Product[] | UpdateProductDto[] = [];
         if (cacheData) {
-            createProduct = cacheData;
-            createProduct.push(product[0])
+            console.log('Get cahceData');
+            const updatedCacheData = cacheData.map((product) => {
+                if (product.id === Number(id)) {
+                    return newProduct
+                } else {
+                    return product
+                }
+            });
+            createProduct = updatedCacheData;
             await this.cacheManager.set('products', createProduct);
+
         } else {
+            console.log('Get MySQLData');
             const productData = await this.productRepository.find();
             createProduct = productData;
             await this.cacheManager.set('products', createProduct);
@@ -70,21 +102,22 @@ export class ProductService {
         return createProduct
     }
 
-    async deleteProduct(id:number){
-        const deleteProduct = await this.productRepository.delete({id})
+    async deleteProduct(id: number) {
+        console.log(id)
+        const deleteProduct = await this.productRepository.delete({ id })
         if (deleteProduct.affected === 0) {
             console.log("Product not found");
             throw new HttpException("Product not found", HttpStatus.NOT_FOUND);
         }
-        await this.cacheManager.del('products');
-        const cacheData: User[] | null = await this.cacheManager.get('products')
-        let createProduct: User[] | UpdateProductDto[] = [];
+        const cacheData: Product[] | null = await this.cacheManager.get('products')
+        let createProduct: Product[] | UpdateProductDto[] = [];
         if (cacheData) {
-            const newCacheData = cacheData.filter(product => product.id !== id)
-            console.log(newCacheData)
-            createProduct =newCacheData;
+            console.log('Get cahceData');
+            const newCacheData = cacheData.filter(product => product.id !== Number(id))
+            createProduct = newCacheData;
             await this.cacheManager.set('products', createProduct);
         } else {
+            console.log('Get MySQLData');
             const productData = await this.productRepository.find();
             createProduct = productData;
             await this.cacheManager.set('products', createProduct);
@@ -92,4 +125,17 @@ export class ProductService {
         return createProduct
     }
 
+    async exportProductsToCSV(res:Response) {
+        if (!fs.existsSync(path.join(__dirname, '..', '..', 'exportCSV'))) {
+            fs.mkdirSync(path.join(__dirname, '..', '..', 'exportCSV'));
+        }
+        const filePath = path.join(__dirname, '..', '..', 'exportCSV', 'products.csv');
+        const products: Product[] = await this.findAll(); 
+        const jsonCsvParser = new Parser();
+        const csv = jsonCsvParser.parse(products);
+        fs.writeFileSync(filePath,csv,)
+        res.attachment("products.csv");
+        res.status(200).send(csv)
+    }   
+   
 }

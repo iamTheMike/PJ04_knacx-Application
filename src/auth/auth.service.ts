@@ -50,12 +50,7 @@ export class AuthService {
       }
     }catch(error){
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-      
-    
-    
-      
-    
+    } 
   }
 
   async validateUser(email: string, password: string): Promise<UserResult | null> {
@@ -64,7 +59,7 @@ export class AuthService {
       const { id, name, email } = user;
       return { id, name, email };
     } else {
-      return null;
+      throw new HttpException('Invalid Password or email',HttpStatus.UNAUTHORIZED)
     }
   }
 
@@ -92,7 +87,7 @@ export class AuthService {
       secret: this.Configservice.getOrThrow('JWT_REFRESH_TOKEN_SECRET'),
       expiresIn: `${this.Configservice.getOrThrow('JWT_REFRESH_TOKEN_EXPIRATION')}ms`
     })
-    await this.updateUser(user, refreshToken);
+    await this.updateRefrshToken(user, refreshToken);
     reponse.cookie('Authentication', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -102,11 +97,11 @@ export class AuthService {
       secure: process.env.NODE_ENV === 'production',
       expires: expiresRefreshToken
     })
-      .send({ message: 'Login Success' });
+    throw new HttpException('Login Success',HttpStatus.OK)
 
   }
 
-  async updateUser(user: UserResult, refreshToken: string): Promise<void> {
+  async updateRefrshToken(user: UserResult, refreshToken: string): Promise<void> {
     const userUpdate = await this.findByEmail(user.email) as User;
     userUpdate.refreshToken = await bcrypt.hash(refreshToken,10) ;
     await this.authRepository.save(userUpdate);
@@ -115,17 +110,14 @@ export class AuthService {
   async verrifyRefreshToken(refreshToken: string, useremail: string):Promise<UserResult | null> {
     try {
       const user = await this.findByEmail(useremail);
-      console.log(refreshToken);
-      console.log(user?.refreshToken);
       const authenticate = await bcrypt.compare(refreshToken, user?.refreshToken as string);
-      console.log(authenticate);
       if(!authenticate){
-        throw new Error('Token Expired');
+        throw new HttpException('Refresh Token Expired',HttpStatus.UNAUTHORIZED)
       }
       const { id, name, email } = user as User;
       return { id, name, email };
     } catch (error) {
-      throw new UnauthorizedException('Refresh Token Expired');
+      throw new HttpException('Refresh Token Expired',HttpStatus.UNAUTHORIZED)
     }
   }
 
@@ -139,6 +131,6 @@ export class AuthService {
       secure: process.env.NODE_ENV === 'production',
     });
     // ส่งการตอบกลับ
-    reponse.send({ message: 'Logout successful' });
+    throw new HttpException('Logout Success',HttpStatus.OK)
   }
 }

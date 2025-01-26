@@ -9,10 +9,13 @@ export class LoggingMiddleWare implements NestMiddleware {
     constructor(private logger: Logger) { }
 
     use(req: Request, res: Response, next: NextFunction) {
+        if (!fs.existsSync(path.join(__dirname, '..','..', 'logs'))) {
+            fs.mkdirSync(path.join(__dirname, '..','..', 'logs'));
+          }
         const reqTime = new Date().getTime();
         res.on('finish', () => {
             const resTime = new Date().getTime();
-            const log = `${req.method} ${req.originalUrl} - Code:${res.statusCode} - ${resTime-reqTime} ms`
+            const log = `${req.method} ${req.originalUrl} - Code:${res.statusCode} - ${resTime-reqTime} ms \n`
             this.logger.log(
                 log
             )
