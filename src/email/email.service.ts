@@ -1,14 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-
 import { SendEmailDto } from './dto/send.email.dto';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-
 @Injectable()
 export class EmailService {
 
     constructor(@InjectQueue('emailQueue') private readonly emailQueue: Queue) { }
-
 
     async sendEmail(emailDto: SendEmailDto) {
         await this.emailQueue.add('sendEmail',

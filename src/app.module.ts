@@ -15,16 +15,13 @@ import { OrderItem } from './order/entities/order.item.entities';
 import { BullModule } from '@nestjs/bull';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EmailModule } from './email/email.module';
-
-
-
 @Module({
 
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-    }),//read env file
+    }),
     TypeOrmModule.forRoot(
       {
         type: process.env.DB_TYPE as 'mysql',
@@ -71,11 +68,11 @@ import { EmailModule } from './email/email.module';
       }
     }),
     MailerModule.forRoot({
-      transport:{
-        host:'smtp.gmail.com',
+      transport: {
+        host: 'smtp.gmail.com',
         auth: {
-          user:process.env.EMAIL,
-          pass:process.env.PASSWORD_EMAIL,
+          user: process.env.EMAIL,
+          pass: process.env.PASSWORD_EMAIL,
         }
       }
     }),

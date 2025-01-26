@@ -11,7 +11,7 @@ import { CreateProductDto } from './dto/product-create.dto';
 import { UpdateProductDto } from './dto/product-update.dto';
 import * as fs from 'fs';
 import * as path from 'path';
-import {Parser} from 'json2csv'
+import { Parser } from 'json2csv'
 import { Response } from 'express';
 @Injectable()
 export class ProductService {
@@ -125,17 +125,20 @@ export class ProductService {
         return createProduct
     }
 
-    async exportProductsToCSV(res:Response) {
+    async exportProductsToCSV(res: Response) {
         if (!fs.existsSync(path.join(__dirname, '..', '..', 'exportCSV'))) {
             fs.mkdirSync(path.join(__dirname, '..', '..', 'exportCSV'));
         }
         const filePath = path.join(__dirname, '..', '..', 'exportCSV', 'products.csv');
-        const products: Product[] = await this.findAll(); 
+        const products: Product[] = await this.findAll();
+        if (products.length === 0) {
+            throw new HttpException("Product is empty", HttpStatus.BAD_REQUEST)
+        }
         const jsonCsvParser = new Parser();
         const csv = jsonCsvParser.parse(products);
-        fs.writeFileSync(filePath,csv,)
+        fs.writeFileSync(filePath, csv,)
         res.attachment("products.csv");
         res.status(200).send(csv)
-    }   
-   
+    }
+
 }

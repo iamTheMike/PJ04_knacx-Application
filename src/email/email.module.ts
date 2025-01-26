@@ -7,10 +7,10 @@ import { EmailQueueProcessor } from './email.queue.process';
 @Module({
   imports: [
     BullModule.registerQueue({
-      name: 'emailQueue', 
+      name: 'emailQueue',
     }),
   ],
   controllers: [EmailController],
-  providers: [EmailService,EmailQueueProcessor,Logger]
+  providers: [EmailService, EmailQueueProcessor, Logger]
 })
 export class EmailModule { }

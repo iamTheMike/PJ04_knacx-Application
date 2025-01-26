@@ -12,11 +12,11 @@ import { Product } from 'src/product/entities/product.entities';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User,Product],"knacx"),
+    TypeOrmModule.forFeature([User, Product], "knacx"),
     JwtModule,
     PassportModule
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy,JwtRefreshStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, JwtRefreshStrategy],
 })
 export class AuthModule { }

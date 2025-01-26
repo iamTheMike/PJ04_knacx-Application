@@ -11,19 +11,12 @@ export class OrderService {
     constructor(
         @InjectRepository(Order, "knacx_orders")
         private orderRepository: Repository<Order>,
-
-  
-
         @InjectDataSource('knacx_orders')
         private dataSource: DataSource
-
-
     ) { }
-
     async findAllOrder() {
         return await this.orderRepository.find()
     }
-
 
 
     async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
@@ -33,13 +26,11 @@ export class OrderService {
             const totalPrice = items.reduce((sum, item) => {
                 return sum += item.price * item.quantity
             }, 0)
-
             const createOrder = manager.create(Order,{
                 customerName,
                 totalPrice
             })
             const order = await manager.save(createOrder);
-
             const orderItem = items.map((item)=>{
               return  manager.create(OrderItem,{
                     ...item,
@@ -47,12 +38,8 @@ export class OrderService {
                 })
             })
             await manager.save(orderItem)
-
             return order
-
         })
-
-
     }
 
 }

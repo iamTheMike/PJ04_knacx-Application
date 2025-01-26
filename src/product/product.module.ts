@@ -8,9 +8,9 @@ import { User } from 'src/auth/entities/auth.entities';
 
 @Module({
   imports: [
-     TypeOrmModule.forFeature([User,Product],"knacx"),
+    TypeOrmModule.forFeature([User, Product], "knacx"),
   ],
   providers: [ProductService],
   controllers: [ProductController]
 })
-export class ProductModule {}
+export class ProductModule { }

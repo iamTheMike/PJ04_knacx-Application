@@ -11,9 +11,9 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       usernameField: 'email',
     });
   }
-  //override validate method
+
   async validate(email: string, password: string): Promise<UserResult | null> {
     const user = await this.authService.validateUser(email, password);
     return user;
   }
-} //end of LocalStrategy set req.user
+} 

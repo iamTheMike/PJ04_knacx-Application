@@ -7,19 +7,19 @@ export class Product extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({unique:true})
+    @Column({ unique: true })
     name: string;
 
-    @Column({default: null, nullable: true})
-    description?:  string ;
+    @Column({ default: null, nullable: true })
+    description?: string;
 
-    @Column({type:'float',precision: 10, scale: 2 })
+    @Column({ type: 'float', precision: 10, scale: 2 })
     price: number;
 
-    @Column({type:'int', default: 0})
+    @Column({ type: 'int', default: 0 })
     stock: number;
 
-    @Column({default: null, nullable: true})
-    image: string ;
+    @Column({ default: null, nullable: true })
+    image: string;
 }
 

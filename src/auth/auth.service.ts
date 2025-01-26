@@ -23,6 +23,7 @@ export interface UserResult {
 
 @Injectable()
 export class AuthService {
+
   constructor(
     @InjectRepository(User, "knacx")
     private authRepository: Repository<User>, //generic
@@ -30,10 +31,9 @@ export class AuthService {
     private Configservice: ConfigService,
   ) { }
 
-
-  async register(userDto: RegisterUserDto): Promise<UserResult> {
+  async register(userDto: RegisterUserDto) {
     const register = this.authRepository.create(userDto);
-    let user:User;
+    let user: User;
     try {
       user = await this.authRepository.save(register);
     } catch (error) {
@@ -44,7 +44,7 @@ export class AuthService {
     }
     const { id, name, email } = user;
     return {
-      id, name, email,
+      message: "new user was created sucessfully", id, name, email
     };
   }
 
@@ -76,7 +76,7 @@ export class AuthService {
     expiresAccessToken.setMilliseconds(
       expiresAccessToken.getTime() +
       parseInt(this.Configservice.getOrThrow('JWT_ACCESS_TOKEN_EXPIRATION'))
-    );// getTime for Reference Date and plus JWT expiresIn
+    );
     const expiresRefreshToken = new Date();
     expiresRefreshToken.setMilliseconds(
       expiresAccessToken.getTime() +
@@ -105,7 +105,7 @@ export class AuthService {
       secure: process.env.NODE_ENV === 'production',
       expires: expiresRefreshToken
     })
-    throw new HttpException('Login Success', HttpStatus.OK)
+    throw new HttpException('Login Successfuly and Auth JWT was sent to Auth Cokie', HttpStatus.OK)
 
   }
 
@@ -120,12 +120,12 @@ export class AuthService {
       const user = await this.findByEmail(useremail);
       const authenticate = await bcrypt.compare(refreshToken, user?.refreshToken as string);
       if (!authenticate) {
-        throw new HttpException('Refresh Token Expired', HttpStatus.UNAUTHORIZED)
+        throw new HttpException('Refresh Token Expired', HttpStatus.BAD_REQUEST)
       }
       const { id, name, email } = user as User;
       return { id, name, email };
     } catch (error) {
-      throw new HttpException('Refresh Token Expired', HttpStatus.UNAUTHORIZED)
+      throw new HttpException('Refresh Token Expired', HttpStatus.BAD_REQUEST)
     }
   }
 
@@ -138,7 +138,6 @@ export class AuthService {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
     });
-    // ส่งการตอบกลับ
-    throw new HttpException('Logout Success', HttpStatus.OK)
+    throw new HttpException('Logout Successfully and Auth Cookie was destroy', HttpStatus.OK)
   }
 }
