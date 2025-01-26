@@ -19,9 +19,10 @@
 ## Installation
 ```
 git clone https://github.com/iamTheMike/PJ04_knacx-Application.git
-cd project
+cd PJ04_knacx-Application
 docker-compose up -d --build 
 npm install
+code .
 ```
 
 ## Start development
