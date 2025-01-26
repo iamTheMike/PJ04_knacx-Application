@@ -26,7 +26,7 @@ code .
 ```
 
 # **Note**
- Before start you have to raname .env.example to be .env use default setting and  set the email and password using your Gmail email service others use default setting in this .env file
+ Before start you have to rename (.env.example) to be (.env) use default setting and set the email and password using your Gmail email service others use default setting in this .env file
 
 ## Start development
 ```
