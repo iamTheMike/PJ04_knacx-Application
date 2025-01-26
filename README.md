@@ -25,6 +25,9 @@ npm install
 code .
 ```
 
+# Note 
+ Bedore start change .env.example to be .env use default setting and You have to set the email and password using your Gmail email service others use default setting
+
 ## Start development
 ```
 npm run start:dev
